@@ -18,9 +18,9 @@ import java.util.Optional;
 
 public class DeviseServiceImplTest {
 
-    static private DeviseService deviseService;
+    static DeviseService deviseService;
     @Mock
-    static private DeviseRepository deviseRepository;
+    static DeviseRepository deviseRepository;
 
 
     @BeforeAll

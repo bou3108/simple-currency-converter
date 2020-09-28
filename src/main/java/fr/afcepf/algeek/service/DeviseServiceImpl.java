@@ -2,7 +2,7 @@ package fr.afcepf.algeek.service;
 
 import fr.afcepf.algeek.entity.Devise;
 import fr.afcepf.algeek.repository.DeviseRepository;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,6 +17,7 @@ import java.util.Optional;
  *
  * @author bou3108
  */
+@Slf4j
 @Service
 public class DeviseServiceImpl implements DeviseService {
 
@@ -74,8 +75,7 @@ public class DeviseServiceImpl implements DeviseService {
                 return null;
             }
         } catch (Exception e) {
-            System.out.println("ex : " + e.getMessage());
-            e.printStackTrace();
+            log.error(e.getMessage());
             return  null;
         }
     }

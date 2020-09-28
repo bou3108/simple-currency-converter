@@ -1,0 +1,101 @@
+pipeline {
+    agent any
+    tools {
+        maven 'M3'
+    }
+    
+    stages {
+        stage('Checkout') {
+            steps {
+                git 'https://github.com/bou3108/simple-currency-converter.git'
+            }
+        }
+        stage('Compile') {
+            steps {
+                echo "-=- Compile -=-";
+                sh 'mvn clean compile'
+            }
+        }
+        stage('Test') {
+            steps {
+                echo "-=- Test Projet Unitaire -=-"
+				sh 'mvn test'
+            }
+			post {
+                success {
+                    junit 'target/surefire-reports/*.xml'    
+                }
+                
+            }
+        }
+        stage('Code coverage') {
+            steps {
+                echo "-=- Test Code coverage -=-"
+				jacoco (
+                    classPattern: 'target/classes',
+                    sourcePattern: 'src/main/java',
+                    exclusionPattern: 'src/test*'
+                    )
+            }
+        }
+        stage('Sanity Check') {
+            steps {
+                echo "-=- Test Sanity Check -=-"
+				sh 'mvn --batch-mode checkstyle:checkstyle pmd:pmd'
+            }
+			post {
+                always {
+                    recordIssues enabledForFailure: true,
+                                 tools: [checkStyle(), pmdParser(pattern: '**/target/pmd.xml')]
+                }
+            }
+        }        
+        stage('Package') {
+            steps {
+                echo "-=- Package projet -=-"
+                sh 'mvn package -DskipTests'
+            }
+            post {
+                always {
+                    archiveArtifacts artifacts: 'target/*.jar', fingerprint: true
+                }
+            }
+        } 
+        stage('SSH transfert') {
+            steps {
+                script {
+                    sshPublisher(publishers: [
+                        sshPublisherDesc(configName:'ec2-host', transfers:[
+                            sshTransfer(
+                                execCommand:'''
+                                    echo " -=- Clean Up -=-";
+                                    sudo docker stop currency-converter-cont || true;
+                                    sudo docker rm currency-converter-cont || true;
+                                    sudo docker rmi currency-converter || true;
+                                '''
+                            ),
+                            sshTransfer(
+                                sourceFiles: "target/*.jar",
+                                removePrefix: "target",
+                                remoteDirectory: "//home//ec2-user",
+                                execCommand:'''
+                                    ls /home/ec2-user
+                                '''
+                            ),
+                            sshTransfer(
+                                sourceFiles: "Dockerfile",
+                                removePrefix: "",
+                                remoteDirectory: "//home//ec2-user",
+                                execCommand:'''
+                                    cd /home/ec2-user;
+                                    sudo docker build -t currency-converter .;
+                                    sudo docker run -d --name currency-converter-cont -p 8080:8080 currency-converter;
+                                '''
+                            ),
+                        ])    
+                    ])
+                }
+            }
+        }
+    }
+}

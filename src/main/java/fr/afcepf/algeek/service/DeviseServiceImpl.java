@@ -2,7 +2,6 @@ package fr.afcepf.algeek.service;
 
 import fr.afcepf.algeek.entity.Devise;
 import fr.afcepf.algeek.repository.DeviseRepository;
-import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -17,7 +16,6 @@ import java.util.Optional;
  *
  * @author bou3108
  */
-@Slf4j
 @Service
 public class DeviseServiceImpl implements DeviseService {
 
@@ -66,7 +64,6 @@ public class DeviseServiceImpl implements DeviseService {
      */
     @Override
     public Double convertTo(String currencyFrom, String currencyTo, double amount) {
-        try {
             Devise source = dao.findById(currencyFrom).orElse(null);
             Devise target = dao.findById(currencyTo).orElse(null);
             if(source != null && target != null){
@@ -74,9 +71,5 @@ public class DeviseServiceImpl implements DeviseService {
             } else {
                 return null;
             }
-        } catch (Exception e) {
-            log.error(e.getMessage());
-            return  null;
-        }
     }
 }

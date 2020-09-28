@@ -50,6 +50,23 @@ pipeline {
                 }
             }
         }        
+        stage('Quality Analysis') {
+            environment {
+                SCANNER_HOME = tool 'SonarQubeScanner'
+                ORGANIZATION = "bou3108-github"
+                PROJECT_NAME = "bou3108_jenkins-pipeline-as-code"
+            }
+            steps {
+                withSonarQubeEnv('sonarqube') {
+                    sh '''$SCANNER_HOME/bin/sonar-scanner \
+                    -Dsonar.java.sources=src \
+                    -Dsonar.java.binaries=target \
+                    -Dsonar.projectKey=$PROJECT_NAME \
+                    -Dsonar/language=java \
+                    -Dsonar.sourceEncoding=UTF-8'''
+                }
+            }
+        }      
         stage('Package') {
             steps {
                 echo "-=- Package projet -=-"
@@ -61,7 +78,7 @@ pipeline {
                 }
             }
         } 
-        stage('SSH transfert') {
+        stage('Deploy to EC2') {
             steps {
                 script {
                     sshPublisher(publishers: [

@@ -47,7 +47,7 @@ public class DeviseRestController {
      * @see fr.afcepf.algeek.service.DeviseService
      */
     @GetMapping(value = "/all")
-    ResponseEntity<List<Devise>> getAllCurrencies() {
+    public ResponseEntity<List<Devise>> getAllCurrencies() {
         try {
             return new ResponseEntity<>(deviseService.allCurrencies(), HttpStatus.OK);
         } catch (Exception e) {
@@ -69,7 +69,7 @@ public class DeviseRestController {
      * @see fr.afcepf.algeek.service.DeviseService
      */
     @GetMapping(value = "/{code}")
-    ResponseEntity<Devise> getCurrencyByCode(@PathVariable String code) {
+    public ResponseEntity<Devise> getCurrencyByCode(@PathVariable String code) {
         try {
             return new ResponseEntity<>(deviseService.deviseByCode(code), HttpStatus.OK);
         } catch (Exception e) {
@@ -93,7 +93,7 @@ public class DeviseRestController {
      * @see fr.afcepf.algeek.service.DeviseService
      */
     @GetMapping(value = "/from/{code1}/to/{code2}/amount/{amount}")
-    ResponseEntity<Double> convertCurrency(@PathVariable String code1, @PathVariable String code2, @PathVariable double amount) {
+    public ResponseEntity<Double> convertCurrency(@PathVariable String code1, @PathVariable String code2, @PathVariable double amount) {
         try {
             return new ResponseEntity<>(deviseService.convertTo(code1, code2, amount), HttpStatus.OK);
         } catch (Exception e) {
